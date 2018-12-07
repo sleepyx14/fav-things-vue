@@ -5,43 +5,43 @@
 			<input v-model="srchVal" placeholder="Look for something!">
 			<button v-on:click="srchWiki"></button>
 		</div>
-		<div id="results">{{res}}</div>
+
+		<div class="res">
+			<span id="res_title">{{title}}</span>
+			<div id="res_description">{{description}}
+				<br/><a v-if="description" :href="link">More Info</a>
+			</div>
+		</div>
   </div>
 </template>
 
 <script>
 export default {
-	data: (){
+	data(){
 		return {
-			res: "",
+			srchVal: "",
+			title: "",
+			description: "",
+			link: "",
 		}
-	}
+	},
   name: 'AppFavContainer',
 	methods:{
-			srchWiki: ()=>{
-				let endpoint = "https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search="+srch_val+"&limit=1&format=json"
+			srchWiki: function (){
+				let endpoint = "https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search="+this.srchVal+"&limit=1&format=json"
 
-		    /*
-		    fetch, store, and display data
-		    */
-		    fetch(endpoint)
-		      .then((response) => {
-		        return response.json();
-		      })
-		      .then((myJson) => {
-		        const title = myJson[0]
-		        const description = myJson[2]
-		        const link = myJson[3]
-
-		        return {title:title, description:description, link:link}
-		      })
-		      .then((srch_data) => {
-		        const title = srch_data.title
-		        const description = srch_data.description
-		        const link = srch_data.link
-
-
-		      })
+				/*
+				fetch, store, and display data
+				*/
+				fetch(endpoint)
+				.then((response) => {
+					return response.json();
+				})
+				.then((myJson) => {
+					this.title = myJson[0]
+					this.description = myJson[2]
+					this.link = myJson[3]
+				})
 			}
 	}
 }
@@ -89,6 +89,8 @@ button {
   background-color: #36454f;
   border: none;
   padding: 15px 18px 5px 23px;
+	margin-left: 1em;
+	border-radius: 25px;
 }
 
 button:hover{
