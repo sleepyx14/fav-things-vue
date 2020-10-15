@@ -44,8 +44,6 @@ export default {
 				try {
 					const req = await fetch(url)
 					const json = await req.json()
-					// eslint-disable-next-line
-					console.log(json)
 
 					if(json.query.search[0]){
 						let {pageid,title,snippet} = json.query.search[0]
@@ -63,6 +61,8 @@ export default {
 						this.description = "Nothing to show here. Try again!"
 					}
 				} catch (e) {
+					this.description = `Something went wrong with your search for ${this.srchVal}!`
+
 					// eslint-disable-next-line
 					console.error(e)
 				}
