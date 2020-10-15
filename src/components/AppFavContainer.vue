@@ -2,7 +2,7 @@
   <div>
 		<div id="input">
 			<span id="search_txt">Seach:</span>
-			<input v-model="srchVal" placeholder="Look for something!">
+			<input v-model="srchVal" v-on:keyup.enter="srchWiki" placeholder="Look for something!">
 			<button v-on:click="srchWiki"></button>
 		</div>
 
@@ -28,22 +28,44 @@ export default {
 	},
   name: 'AppFavContainer',
 	methods:{
-			srchWiki: function (){
-				let endpoint = "https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search="+this.srchVal+"&limit=1&format=json"
+			srchWiki: async function (){
+				const url = "https://en.wikipedia.org/w/api.php?" +
+				new URLSearchParams({
+					origin: "*",
+					action: "query",
+					list: "search",
+					srsearch: this.srchVal,
+					format: "json",
+					prop: "info",
+					inprop: "url",
+					srlimit: 1
+				})
 
-				/*
-				fetch, store, and display data
-				*/
-				fetch(endpoint)
-				.then((response) => {
-					return response.json()
-				})
-				.then((myJson) => {
-					this.title = myJson[0]
-					this.description = myJson[2][0]
-					this.link = myJson[3][0]
-					this.showlink = true
-				})
+				try {
+					const req = await fetch(url)
+					const json = await req.json()
+					// eslint-disable-next-line
+					console.log(json)
+
+					if(json.query.search[0]){
+						let {pageid,title,snippet} = json.query.search[0]
+
+						// strip out any html tags
+						// returned by the api
+						snippet = new DOMParser().parseFromString(snippet, 'text/html').body.textContent || ""
+
+						this.title = title
+						this.description = snippet
+						this.link = `http://en.wikipedia.org/?curid=${pageid}`
+						this.showlink = true
+					}
+					else{
+						this.description = "Nothing to show here. Try again!"
+					}
+				} catch (e) {
+					// eslint-disable-next-line
+					console.error(e)
+				}
 			}
 	}
 }
